@@ -4,6 +4,8 @@
 
 namespace testing {
 
+constexpr uint8_t MAKE_BET_ACTION = 0;
+
 class dice_tester: public game_tester {
 public:
     static const name game_name;
@@ -61,7 +63,8 @@ BOOST_FIXTURE_TEST_CASE(max_win_min_test, dice_tester) try {
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
 
-    game_action(game_name, ses_id, 0, { 1 });
+    const auto bet_num = 1;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     auto session = get_game_session(game_name, ses_id);
     BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), STRSYM("0.0000"));
@@ -76,12 +79,13 @@ BOOST_FIXTURE_TEST_CASE(max_win_max_test, dice_tester) try {
 
     transfer(N(eosio), player_name, STRSYM("10.0000"));
 
-    auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
+    const auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
 
-    game_action(game_name, ses_id, 0, { 99 });
+    const auto bet_num = 99;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     auto session = get_game_session(game_name, ses_id);
-    BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), STRSYM("20.0000"));
+    BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), STRSYM("0.0090")); // ToDo Check: why not 0.0099?
 
 } FC_LOG_AND_RETHROW()
 
@@ -95,12 +99,16 @@ BOOST_FIXTURE_TEST_CASE(max_win_normal_test, dice_tester) try {
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
 
-    game_action(game_name, ses_id, 0, { 50 });
 
-    auto session = get_game_session(game_name, ses_id);
+    for (unsigned int bet_num = 2; bet_num != 100; ++bet_num)
+    {
+        game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-    asset expected_max_win = asset(default_max_payout * 10000 / 50, symbol(CORE_SYM)); // 50% win chance -> max_win = max_payout / 50
-    BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), expected_max_win);
+        const asset expected_max_win = asset(99. / (100 - bet_num), symbol(CORE_SYM)); // 50% win chance -> max_win = max_payout / 50
+        const auto session = get_game_session(game_name, ses_id);
+
+        BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), expected_max_win); // ToDo Check here
+    }
 
 } FC_LOG_AND_RETHROW()
 
@@ -120,7 +128,8 @@ BOOST_FIXTURE_TEST_CASE(full_session_success_test, dice_tester) try {
 
     BOOST_REQUIRE_EQUAL(get_balance(game_name), STRSYM("5.0000"));
 
-    game_action(game_name, ses_id, 0, { 90 });
+    const auto bet_num = 90;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     auto session = get_game_session(game_name, ses_id);
     BOOST_REQUIRE_EQUAL(session["state"].as<uint32_t>(), 3); // req_signidice_part_1 state
@@ -244,7 +253,8 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_state_test, dice_tester) try {
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
 
-    game_action(game_name, ses_id, 0, { 30 });
+    const auto bet_num = 30;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(transfer(player_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
         wasm_assert_msg("state should be 'req_deposit'")
@@ -273,7 +283,8 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_state_test, dice_tester) try {
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
 
-    game_action(game_name, ses_id, 0, { 30 });
+    const auto bet_num = 30;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(push_action(game_name, N(gameaction), { player_name, N(game) }, { platform_name, N(active) }, mvo()
         ("req_id", ses_id)
@@ -314,7 +325,8 @@ BOOST_FIXTURE_TEST_CASE(signidice_1_bad_state_test, dice_tester) try {
         ("sign", sign_1)
     ), wasm_assert_msg("state should be 'req_signidice_part_1'"));
 
-    game_action(game_name, ses_id, 0, { 30 });
+    const auto bet_num = 30;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { platform_name, N(signidice) }, mvo()
         ("req_id", ses_id)
@@ -346,7 +358,8 @@ BOOST_FIXTURE_TEST_CASE(signidice_2_bad_state_test, dice_tester) try {
         ("sign", sign)
     ), wasm_assert_msg("state should be 'req_signidice_part_2'"));
 
-    game_action(game_name, ses_id, 0, { 30 });
+    const auto bet_num = 30;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicesecond), { casino_name, N(signidice) }, mvo()
         ("req_id", ses_id)
