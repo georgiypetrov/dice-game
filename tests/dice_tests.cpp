@@ -94,18 +94,27 @@ BOOST_FIXTURE_TEST_CASE(max_win_normal_test, dice_tester) try {
 
     create_player(player_name);
     link_game(player_name, game_name);
+    transfer(N(eosio), player_name, STRSYM("1000.0000"));
 
-    const auto deposit = 5;
-    for (unsigned int bet_num = 2; bet_num != 100; ++bet_num)
+    const auto core_symbol = symbol(CORE_SYM);
+    const auto deposit = 5.0;
+    const auto max_payout = default_max_payout - deposit;
+    const auto precision = asset(0.001 * core_symbol.precision(), core_symbol)
+
+    for (unsigned int bet_num = 2; bet_num <= 99; ++bet_num)
     {
-        transfer(N(eosio), player_name, STRSYM("10.0000"));
-        auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
+        const auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
         game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-        const auto expected_max_win = (99. * deposit / (100 - bet_num)) - deposit; // Simplyfied formula for casino potential payout
-        const auto session = get_game_session(game_name, ses_id);
+        auto expected_max_win = deposit * (99. / (100. - bet_num) - 1.); 
+        expected_max_win = expected_max_win < max_payout ? expected_max_win : max_payout;
 
-        BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), asset(expected_max_win, symbol(CORE_SYM))); 
+        const auto session = get_game_session(game_name, ses_id);
+        BOOST_CHECK(
+                session["last_max_win"].as<asset>() 
+                - asset(expected_max_win * core_symbol.precision(), core_symbol) < 
+                precision
+        ); 
     }
 
 } FC_LOG_AND_RETHROW()
