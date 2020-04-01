@@ -12,7 +12,7 @@ using eosio::checksum256;
 namespace constant
 {
 constexpr double all_range = 100.;
-constexpr double house_edge = 0.1;
+constexpr double house_edge = 0.01;
 }
 
 struct action_type {

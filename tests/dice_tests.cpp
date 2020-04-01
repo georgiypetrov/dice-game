@@ -67,7 +67,7 @@ BOOST_FIXTURE_TEST_CASE(max_win_min_test, dice_tester) try {
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     auto session = get_game_session(game_name, ses_id);
-    BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), STRSYM("0.0000"));
+    BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), STRSYM("0.0001"));
 
 } FC_LOG_AND_RETHROW()
 
@@ -85,7 +85,7 @@ BOOST_FIXTURE_TEST_CASE(max_win_max_test, dice_tester) try {
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     auto session = get_game_session(game_name, ses_id);
-    BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), STRSYM("0.0090")); // ToDo Check: why not 0.0099?
+    BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), STRSYM("0.0099"));
 
 } FC_LOG_AND_RETHROW()
 
@@ -95,16 +95,13 @@ BOOST_FIXTURE_TEST_CASE(max_win_normal_test, dice_tester) try {
     create_player(player_name);
     link_game(player_name, game_name);
 
-    transfer(N(eosio), player_name, STRSYM("10.0000"));
-
-    auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
-
-
     for (unsigned int bet_num = 2; bet_num != 100; ++bet_num)
     {
+        transfer(N(eosio), player_name, STRSYM("10.0000"));
+        auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
         game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-        const asset expected_max_win = asset(99. / (100 - bet_num), symbol(CORE_SYM)); // 50% win chance -> max_win = max_payout / 50
+        const asset expected_max_win = asset(99. / (100 - bet_num), symbol(CORE_SYM)); // Simplyfied formula for 
         const auto session = get_game_session(game_name, ses_id);
 
         BOOST_REQUIRE_EQUAL(session["last_max_win"].as<asset>(), expected_max_win); // ToDo Check here
