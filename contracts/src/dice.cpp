@@ -3,14 +3,14 @@
 namespace dice {
 
 void dice::check_params(uint64_t ses_id) const {
-    eosio::check(get_param_value(ses_id, min_bet_param_type) != std::nullopt, "absent min bet param");
-    eosio::check(get_param_value(ses_id, max_bet_param_type) != std::nullopt, "absent max bet param");
-    eosio::check(get_param_value(ses_id, max_payout_param_type) != std::nullopt, "absent max payout param");
+    eosio::check(get_param_value(ses_id, constant::min_bet_param_type) != std::nullopt, "absent min bet param");
+    eosio::check(get_param_value(ses_id, constant::max_bet_param_type) != std::nullopt, "absent max bet param");
+    eosio::check(get_param_value(ses_id, constant::max_payout_param_type) != std::nullopt, "absent max payout param");
 }
 
 void dice::check_bet(uint64_t ses_id) const {
-    const auto min_bet = asset(*get_param_value(ses_id, min_bet_param_type), core_symbol);
-    const auto max_bet = asset(*get_param_value(ses_id, max_bet_param_type), core_symbol);
+    const auto min_bet = asset(*get_param_value(ses_id, constant::min_bet_param_type), core_symbol);
+    const auto max_bet = asset(*get_param_value(ses_id, constant::max_bet_param_type), core_symbol);
 
     const auto& session = get_session(ses_id);
     eosio::check(min_bet <= session.deposit, "deposit less than min bet");
@@ -31,11 +31,11 @@ void dice::on_new_game(uint64_t ses_id) {
     check_params(ses_id);
     check_bet(ses_id);
 
-    require_action(ses_id, roll_action_type);
+    require_action(ses_id, constant::roll_action_type);
 }
 
 void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> params) {
-    eosio::check(type == roll_action_type, "allowed only roll action with type 0");
+    eosio::check(type == constant::roll_action_type, "allowed only roll action with type 0");
     check_action_params(params);
 
     const auto& number = params[0];
@@ -51,7 +51,7 @@ void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> param
 
 asset dice::get_win_payout(uint64_t ses_id, asset deposit, uint32_t number) const {
     const auto win_payout = deposit * get_win_coefficient(number);
-    const auto max_payout = asset(*get_param_value(ses_id, max_payout_param_type), core_symbol);
+    const auto max_payout = asset(*get_param_value(ses_id, constant::max_payout_param_type), core_symbol);
 
     return win_payout < max_payout ? win_payout : max_payout;
 }
@@ -67,8 +67,7 @@ void dice::on_random(uint64_t ses_id, checksum256 rand) {
         payout = get_win_payout(ses_id, get_session(ses_id).deposit, bet_number);
     } 
 
-    finish_game(ses_id, payout);
-}
+    finish_game(ses_id, payout); }
 
 void dice::on_finish(uint64_t ses_id) {
     const auto roll_itr = rolls.find(ses_id);

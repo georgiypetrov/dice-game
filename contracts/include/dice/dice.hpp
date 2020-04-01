@@ -13,6 +13,11 @@ namespace constant
 {
 constexpr double all_range = 100.;
 constexpr double house_edge = 0.01;
+
+constexpr uint16_t min_bet_param_type = 0;
+constexpr uint16_t max_bet_param_type = 1;
+constexpr uint16_t max_payout_param_type = 2;
+constexpr uint8_t roll_action_type = 0;
 }
 
 struct action_type {
@@ -20,14 +25,6 @@ struct action_type {
 };
 
 class dice: public game_sdk::game {
-
-public:
-    static constexpr uint16_t min_bet_param_type = 0;
-    static constexpr uint16_t max_bet_param_type = 1;
-    static constexpr uint16_t max_payout_param_type = 2;
-
-    static constexpr uint8_t roll_action_type = 0;
-
 public:
     struct [[eosio::table("roll")]] roll_row {
         uint64_t ses_id;
