@@ -50,7 +50,7 @@ public:
     void on_finish(uint64_t ses_id) override final;
 
 private:
-    asset get_win_payout(uint64_t ses_id, const asset& deposit, uint32_t number) const;
+    asset get_win_payout(uint64_t ses_id, uint32_t number) const;
 
     void check_params(uint64_t ses_id) const;
     void check_bet(uint64_t ses_id) const;
