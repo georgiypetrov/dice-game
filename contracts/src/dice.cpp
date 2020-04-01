@@ -57,7 +57,7 @@ void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> param
 
 asset dice::get_win_payout(uint64_t ses_id, uint32_t number) const {
     auto win_payout = get_session(ses_id).deposit;
-    
+
     // Assets can't be multiply to double. Use dirty way.
     win_payout.amount = uint64_t(double(win_payout.amount) * get_win_coefficient(number));
 
