@@ -17,7 +17,7 @@ void dice::check_bet(uint64_t ses_id) const {
     eosio::check(max_bet >= session.deposit, "deposit greater than max bet");
 }
 
-void dice::check_action_params(std::vector<uint32_t> params) const {
+void dice::check_action_params(const std::vector<uint32_t>& params) const {
     eosio::check(params.size() == 1, "params amount should be 1");
     eosio::check(params[0] > 0, "number should be more than 0");
     eosio::check(params[0] < 100, "number should be less than 100");
@@ -49,7 +49,7 @@ void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> param
     require_random(ses_id);
 }
 
-asset dice::get_win_payout(uint64_t ses_id, asset deposit, uint32_t number) const {
+asset dice::get_win_payout(uint64_t ses_id, const asset& deposit, uint32_t number) const {
     const auto win_payout = deposit * get_win_coefficient(number);
     const auto max_payout = asset(*get_param_value(ses_id, constant::max_payout_param_type), core_symbol);
 

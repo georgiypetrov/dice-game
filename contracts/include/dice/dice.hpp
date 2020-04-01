@@ -50,11 +50,11 @@ public:
     void on_finish(uint64_t ses_id) override final;
 
 private:
-    asset get_win_payout(uint64_t ses_id, asset deposit, uint32_t number) const;
+    asset get_win_payout(uint64_t ses_id, const asset& deposit, uint32_t number) const;
 
     void check_params(uint64_t ses_id) const;
     void check_bet(uint64_t ses_id) const;
-    void check_action_params(std::vector<uint32_t> params) const;
+    void check_action_params(const std::vector<uint32_t>& params) const;
     uint32_t rand_range(const checksum256& rand, uint32_t lower, uint32_t upper);
 
 private:
