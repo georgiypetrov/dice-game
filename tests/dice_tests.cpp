@@ -13,6 +13,9 @@ public:
     static constexpr uint32_t default_max_bet = 10;
     static constexpr uint32_t default_max_payout = 20;
 
+    static constexpr double all_range = 100; 
+    static constexpr double house_edge = 0.01;
+
 public:
     dice_tester() {
         create_account(game_name);
@@ -97,16 +100,17 @@ BOOST_FIXTURE_TEST_CASE(max_win_normal_test, dice_tester) try {
     transfer(N(eosio), player_name, STRSYM("1000.0000"));
 
     const auto core_symbol = symbol(CORE_SYM);
+
     const auto deposit = 5.0;
     const auto max_payout = default_max_payout - deposit;
-    const auto precision = asset(0.001 * core_symbol.precision(), core_symbol)
+    const auto precision = asset(0.001 * core_symbol.precision(), core_symbol);
 
     for (unsigned int bet_num = 2; bet_num <= 99; ++bet_num)
     {
         const auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
         game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-        auto expected_max_win = deposit * (99. / (100. - bet_num) - 1.); 
+        auto expected_max_win = deposit * ((all_range * (1. - house_edge)) / (all_range - bet_num) - 1.); 
         expected_max_win = expected_max_win < max_payout ? expected_max_win : max_payout;
 
         const auto session = get_game_session(game_name, ses_id);
