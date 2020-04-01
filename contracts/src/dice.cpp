@@ -72,7 +72,7 @@ void dice::on_random(uint64_t ses_id, checksum256 rand) {
     auto payout = zero_asset;
 
     const auto bet_number = rolls.get(ses_id).number;
-    if (bet_number < actual_number) { // win
+    if (bet_number <= actual_number) { // win
         payout = get_win_payout(ses_id, bet_number);
     } 
 
