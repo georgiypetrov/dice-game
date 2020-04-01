@@ -66,7 +66,7 @@ asset dice::get_win_payout(uint64_t ses_id, uint32_t number) const {
 }
 
 void dice::on_random(uint64_t ses_id, checksum256 rand) {
-    const uint32_t actual_number = rand_u64(rand) % 100;
+    const uint32_t actual_number = (1 + rand_u64(rand)) % 100;
     eosio::print("rand num: ", actual_number, "\n");
 
     auto payout = zero_asset;
