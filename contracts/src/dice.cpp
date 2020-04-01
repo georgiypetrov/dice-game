@@ -67,7 +67,8 @@ void dice::on_random(uint64_t ses_id, checksum256 rand) {
         payout = get_win_payout(ses_id, get_session(ses_id).deposit, bet_number);
     } 
 
-    finish_game(ses_id, payout); }
+    finish_game(ses_id, payout); 
+}
 
 void dice::on_finish(uint64_t ses_id) {
     const auto roll_itr = rolls.find(ses_id);
