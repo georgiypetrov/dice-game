@@ -1,12 +1,15 @@
-#! /bin/bash
+#! /bin/bash	
 
-printf "\t=========== Create archive eosio.contracts ===========\n\n"
+printf "\t=========== Create archive example contracts ===========\n\n"	
 
-RED='\033[0;31m'
-NC='\033[0m'
+RED='\033[0;31m'	
+NC='\033[0m'	
 
-mkdir -p build
-pushd build &> /dev/null
-cmake ..
-cmake --build . --target create_tar
-popd &> /dev/null
+asset_dir=$(realpath "build/assets")	
+mkdir -p $asset_dir
+
+(
+    set -x
+    cd build/contracts
+    tar -czf $asset_dir/contracts.tar.gz *.abi *.wasm
+)
