@@ -168,6 +168,8 @@ BOOST_FIXTURE_TEST_CASE(session_exiration_test, dice_tester) try {
     auto player_balance_before = get_balance(player_name);
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
+    const auto bet_num = 10;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(get_balance(game_name), STRSYM("5.0000"));
 
@@ -246,9 +248,11 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_sender_test, dice_tester) try {
     transfer(N(eosio), casino_name, STRSYM("1000.0000"));
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
+    const auto bet_num = 30;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(transfer(casino_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
-        wasm_assert_msg("only player can deposit")
+        wasm_assert_msg("state should be 'req_deposit'")
     );
 
 } FC_LOG_AND_RETHROW()
