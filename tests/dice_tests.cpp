@@ -1,4 +1,4 @@
-[CASINO_name,#include <game_tester/game_tester.hpp>] 
+#include <game_tester/game_tester.hpp>
 
 #include "contracts.hpp"
 
