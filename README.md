@@ -7,7 +7,12 @@ Branch|Build Status
 Master|[![master](https://travis-ci.org/DaoCasino/dice-game.svg?branch=master)](https://travis-ci.org/DaoCasino/dice-game.svg?branch=master)
 
 ## Description
-Simple dice game. Implemeted by [sdk](https://github.com/DaoCasino/game-contract-sdk). 
+Simple dice game for DAOPlatform based on DAOBet blockchain. Implemeted by [sdk](https://github.com/DaoCasino/game-contract-sdk). 
+
+## Rules
+Player can choose value from 1 to 99. 
+After throwing the dice, if the user value is less than the random value of the dice, the player win. Win coefficient calculating by formula:
+<img src="https://render.githubusercontent.com/render/math?math=(100 * (1 - he)/(100 - N)"> where `he` - house edge and N - player number.
 
 # Try it
 
