@@ -156,37 +156,6 @@ BOOST_FIXTURE_TEST_CASE(full_session_success_test, dice_tester) try {
 
 } FC_LOG_AND_RETHROW()
 
-BOOST_FIXTURE_TEST_CASE(session_exiration_test, dice_tester) try {
-    auto player_name = N(player);
-
-    create_player(player_name);
-    link_game(player_name, game_name);
-
-    transfer(N(eosio), player_name, STRSYM("10.0000"));
-    transfer(N(eosio), casino_name, STRSYM("1000.0000"));
-
-    auto player_balance_before = get_balance(player_name);
-
-    auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
-
-    BOOST_REQUIRE_EQUAL(get_balance(game_name), STRSYM("5.0000"));
-
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(close), { platform_name, N(active) }, mvo()
-        ("req_id", ses_id)
-    ), wasm_assert_msg("session isn't expired, only expired session can be closed"));
-
-    produce_block(fc::seconds(game_session_ttl + 1));
-
-    close_session(game_name, ses_id);
-
-    auto session = get_game_session(game_name, ses_id);
-    BOOST_REQUIRE_EQUAL(session.is_null(), true);
-
-    auto player_balance_after = get_balance(player_name);
-    BOOST_REQUIRE_EQUAL(player_balance_before, player_balance_after);
-
-} FC_LOG_AND_RETHROW()
-
 BOOST_FIXTURE_TEST_CASE(new_session_bad_auth_test, dice_tester) try {
     auto player_name = N(player);
 
@@ -246,9 +215,11 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_sender_test, dice_tester) try {
     transfer(N(eosio), casino_name, STRSYM("1000.0000"));
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
+    const auto bet_num = 30;
+    game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(transfer(casino_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
-        wasm_assert_msg("only player can deposit")
+        wasm_assert_msg("state should be 'req_deposit'")
     );
 
 } FC_LOG_AND_RETHROW()
