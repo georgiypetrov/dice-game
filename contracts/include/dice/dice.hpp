@@ -24,7 +24,7 @@ struct action_type {
     uint8_t value;
 };
 
-class dice: public game_sdk::game {
+class [[eosio::contract]] dice: public game_sdk::game {
 public:
     struct [[eosio::table("roll")]] roll_row {
         uint64_t ses_id;
