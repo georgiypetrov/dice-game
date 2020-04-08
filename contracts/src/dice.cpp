@@ -38,7 +38,7 @@ void dice::on_new_game(uint64_t ses_id) {
     check_params(ses_id);
     check_bet(ses_id);
 
-    require_action(ses_id, constant::roll_action_type);
+    require_action(constant::roll_action_type);
 }
 
 void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> params) {
@@ -51,8 +51,8 @@ void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> param
         row.number = number;
     });
 
-    update_max_win(ses_id, get_win_payout(ses_id, number) - get_session(ses_id).deposit);
-    require_random(ses_id);
+    update_max_win(get_win_payout(ses_id, number));
+    require_random();
 }
 
 asset dice::get_win_payout(uint64_t ses_id, uint32_t number) const {
@@ -76,7 +76,7 @@ void dice::on_random(uint64_t ses_id, checksum256 rand) {
         payout = get_win_payout(ses_id, bet_number);
     } 
 
-    finish_game(ses_id, payout); 
+    finish_game(payout); 
 }
 
 void dice::on_finish(uint64_t ses_id) {
