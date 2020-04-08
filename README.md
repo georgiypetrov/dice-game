@@ -7,7 +7,7 @@ Branch|Build Status
 Master|[![master](https://travis-ci.org/DaoCasino/dice-game.svg?branch=master)](https://travis-ci.org/DaoCasino/dice-game.svg?branch=master)
 
 ## Description
-<!-- Todo -->
+Simple dice game. Implemeted by [sdk](https://github.com/DaoCasino/game-contract-sdk). 
 
 # Try it
 
