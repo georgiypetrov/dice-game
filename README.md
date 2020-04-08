@@ -4,7 +4,7 @@
 
 Branch|Build Status
 ---|---
-Master|[![master](https://travis-ci.org/DaoCasino/dice-game?branch=master)](https://travis-ci.org/DaoCasino/dice-game.svg?branch=master)
+Master|[![master](https://travis-ci.org/DaoCasino/dice-game.svg?branch=master)](https://travis-ci.org/DaoCasino/dice-game.svg?branch=master)
 
 ## Description
 <!-- Todo -->
