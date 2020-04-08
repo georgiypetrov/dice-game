@@ -51,7 +51,7 @@ void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> param
         row.number = number;
     });
 
-    update_max_win(get_win_payout(ses_id, number) );
+    update_max_win(get_win_payout(ses_id, number));
     require_random();
 }
 
