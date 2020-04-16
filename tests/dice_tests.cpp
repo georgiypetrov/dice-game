@@ -1,4 +1,5 @@
 #include <game_tester/game_tester.hpp>
+#include <game_tester/strategy.hpp>
 
 #include "contracts.hpp"
 
@@ -27,6 +28,45 @@ public:
         };
 
         deploy_game<dice_game>(game_name, game_params);
+    }
+
+    double get_rtp(uint64_t run_count, std::function<uint32_t()> && bet_generator) {
+        const auto player_name = N(player);
+        create_player(player_name);
+        link_game(player_name, game_name);
+
+        const auto to_double = [](const asset& value) -> double {
+            return double(value.get_amount()) / value.precision();
+        };
+
+        // Init balance for player and casino
+        transfer(N(eosio), player_name, STRSYM("1000000.0000"));
+        transfer(N(eosio), casino_name, STRSYM("1000000.0000"));
+
+        const double start_player_balance = to_double(get_balance(player_name));
+
+        auto graph = strategy::Graph([&](game_tester & tester, const uint32_t session_id) {
+            tester.game_action(game_name, session_id, 0, { bet_generator() });
+            return strategy::Result::End;
+        });
+
+        auto executor = strategy::Executor(std::move(graph));
+
+        const uint32_t bet = 1;
+        executor.process_strategy(
+            *this, run_count, 10,
+            [](game_tester & tester, const uint run) {
+                return tester.new_game_session(game_name, player_name, casino_id, STRSYM("1.0000"));
+            },
+            [&](game_tester & tester, const uint32_t session_id) {
+                tester.signidice(game_name, session_id);
+            }
+        );
+
+        const auto end_player_balance = to_double(get_balance(player_name));
+        const double all_bets_balance = double(run_count) * bet;
+
+        return ((end_player_balance - start_player_balance) / all_bets_balance) + 1;
     }
 };
 
@@ -382,6 +422,11 @@ BOOST_FIXTURE_TEST_CASE(signidice_2_bad_state_test, dice_tester) try {
     ), wasm_assert_msg("state should be 'req_signidice_part_2'"));
 
 } FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(dice_rtp_test, dice_tester, *boost::unit_test::disabled()) try {
+    BOOST_TEST(get_rtp(1000000, [](){ return 1 + (rand() % 99); }) == 0.978, boost::test_tools::tolerance(0.015));
+} FC_LOG_AND_RETHROW()
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } // namespace testing

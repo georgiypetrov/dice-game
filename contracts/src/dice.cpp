@@ -66,13 +66,13 @@ asset dice::get_win_payout(uint64_t ses_id, uint32_t number) const {
 }
 
 void dice::on_random(uint64_t ses_id, checksum256 rand) {
-    const uint32_t actual_number = rand_u64(rand) % 100;
+    const uint16_t actual_number = cut_to<uint16_t>(rand) % 100;
     eosio::print("rand num: ", actual_number, "\n");
 
     auto payout = zero_asset;
 
     const auto bet_number = rolls.get(ses_id).number;
-    if (bet_number <= actual_number) { // win
+    if (bet_number <= actual_number) { // Win
         payout = get_win_payout(ses_id, bet_number);
     } 
 
