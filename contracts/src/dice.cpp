@@ -24,13 +24,13 @@ void dice::check_bet(uint64_t ses_id) const {
     eosio::check(max_bet >= session.deposit, "deposit greater than max bet");
 }
 
-void dice::check_action_params(const std::vector<uint32_t>& params) const {
+void dice::check_action_params(const std::vector<game_sdk::param_t>& params) const {
     eosio::check(params.size() == 1, "params amount should be 1");
     eosio::check(params[0] > 0, "number should be more than 0");
     eosio::check(params[0] < 100, "number should be less than 100");
 }
 
-double dice::get_win_coefficient(uint32_t num) {
+double dice::get_win_coefficient(dice_number_t num) {
     return (constant::all_range / (constant::all_range - num)) * (1. - constant::house_edge);
 }
 
@@ -41,11 +41,11 @@ void dice::on_new_game(uint64_t ses_id) {
     require_action(constant::roll_action_type);
 }
 
-void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> params) {
+void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<game_sdk::param_t> params) {
     eosio::check(type == constant::roll_action_type, "allowed only roll action with type 0");
     check_action_params(params);
 
-    const auto& number = params[0];
+    const dice_number_t number = params[0];
     rolls.emplace(get_self(), [&](auto& row) {
         row.ses_id = ses_id;
         row.number = number;
@@ -55,7 +55,7 @@ void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<uint32_t> param
     require_random();
 }
 
-asset dice::get_win_payout(uint64_t ses_id, uint32_t number) const {
+asset dice::get_win_payout(uint64_t ses_id, dice_number_t number) const {
     auto win_payout = get_session(ses_id).deposit;
 
     // Assets can't be multiply to double. Use dirty way.
@@ -66,7 +66,7 @@ asset dice::get_win_payout(uint64_t ses_id, uint32_t number) const {
 }
 
 void dice::on_random(uint64_t ses_id, checksum256 rand) {
-    const uint16_t actual_number = cut_to<uint16_t>(rand) % 100;
+    const dice_number_t actual_number = service::cut_to<dice_number_t>(rand) % 100;
     eosio::print("rand num: ", actual_number, "\n");
 
     auto payout = zero_asset;
@@ -76,7 +76,7 @@ void dice::on_random(uint64_t ses_id, checksum256 rand) {
         payout = get_win_payout(ses_id, bet_number);
     } 
 
-    finish_game(payout); 
+    finish_game(payout, std::vector<game_sdk::param_t> {actual_number}); 
 }
 
 void dice::on_finish(uint64_t ses_id) {
