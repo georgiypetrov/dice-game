@@ -241,15 +241,29 @@ BOOST_FIXTURE_TEST_CASE(new_session_bad_auth_test, dice_tester) try {
     auto ses_id = 0u;
     transfer(player_name, game_name, STRSYM("5.0000"), std::to_string(ses_id));
 
-    BOOST_TEST_REQUIRE(push_action(game_name, N(newgame), { player_name, N(game) }, { casino_name, N(active) }, mvo()
-        ("req_id", ses_id)
-        ("casino_id", casino_id)
+    // clang-format off
+    BOOST_TEST_REQUIRE(
+        push_action(
+            game_name,
+            N(newgame),
+            { player_name, N(game) },
+            { casino_name, N(active) },
+            mvo() 
+                ("req_id", ses_id)
+                ("casino_id", casino_id)
     ).find("but does not have signatures for it") != std::string::npos);
 
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(newgame), { casino_name, N(active) }, { casino_name, N(active) }, mvo()
-        ("req_id", ses_id)
-        ("casino_id", casino_id)
-    ), "missing authority of player/game");
+    BOOST_REQUIRE_EQUAL(
+        push_action(
+            game_name,
+            N(newgame),
+            { casino_name, N(active) },
+            { casino_name, N(active) },
+            mvo() 
+                ("req_id", ses_id)
+                ("casino_id", casino_id)
+        ), "missing authority of platform/gameaction");
+    // clang-format on
 
 } FC_LOG_AND_RETHROW()
 
@@ -274,7 +288,7 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_auth_test, dice_tester) try {
         ("req_id", ses_id)
         ("type", 0)
         ("params", std::vector<uint32_t> { 30 })
-    ), "missing authority of player/game");
+    ), "missing authority of platform/gameaction");
 
 } FC_LOG_AND_RETHROW()
 
@@ -341,11 +355,16 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_state_test, dice_tester) try {
     const auto bet_num = 30;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(gameaction), { player_name, N(game) }, { platform_name, N(active) }, mvo()
-        ("req_id", ses_id)
-        ("type", 0)
-        ("params", std::vector<uint32_t> { 30 })
-    ), wasm_assert_msg("state should be 'req_deposit' or 'req_action'"));
+    BOOST_REQUIRE_EQUAL(
+        push_action(
+            game_name,
+            N(gameaction),
+            { platform_name, N(gameaction) },
+            mvo()
+                ("req_id", ses_id)
+                ("type", 0)
+                ("params", std::vector<uint32_t> { 30 })
+        ), wasm_assert_msg("state should be 'req_deposit' or 'req_action'"));
 
     auto digest = get_game_session(game_name, ses_id)["digest"].as<sha256>();
     auto sign_1 = rsa_sign(rsa_keys.at(platform_name), digest);
@@ -354,11 +373,18 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_state_test, dice_tester) try {
         ("sign", sign_1)
     ), success());
 
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(gameaction), { player_name, N(game) }, { platform_name, N(active) }, mvo()
-        ("req_id", ses_id)
-        ("type", 0)
-        ("params", std::vector<uint32_t> { 30 })
-    ), wasm_assert_msg("state should be 'req_deposit' or 'req_action'"));
+    // clang-format off
+    BOOST_REQUIRE_EQUAL(
+        push_action(
+            game_name,
+            N(gameaction),
+            { platform_name, N(gameaction) },
+            mvo()
+                ("req_id", ses_id)
+                ("type", 0)
+                ("params", std::vector<uint32_t> { 30 })
+        ), wasm_assert_msg("state should be 'req_deposit' or 'req_action'"));
+    // clang-format on
 
 } FC_LOG_AND_RETHROW()
 
