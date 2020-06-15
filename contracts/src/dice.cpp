@@ -38,6 +38,7 @@ void dice::on_new_game(uint64_t ses_id) {
     check_params(ses_id);
     check_bet(ses_id);
 
+    // Requesting game action from player
     require_action(constant::roll_action_type);
 }
 
@@ -45,13 +46,19 @@ void dice::on_action(uint64_t ses_id, uint16_t type, std::vector<game_sdk::param
     eosio::check(type == constant::roll_action_type, "allowed only roll action with type 0");
     check_action_params(params);
 
-    const dice_number_t number = params[0];
+    const dice_number_t number = params[0]; ///< "params[0]" is a player choise
     rolls.emplace(get_self(), [&](auto& row) {
         row.ses_id = ses_id;
         row.number = number;
     });
 
+    // Here we say to platform the amount of maximum possible payout
+    // It's platform requirement, game must provide that amount every time when it's changed
     update_max_win(get_win_payout(ses_id, number));
+
+    // Request random number
+    // After that contract will initiate secure random generation protocol
+    // Result will handled by "on_random" method
     require_random();
 }
 
@@ -74,19 +81,25 @@ void dice::on_random(uint64_t ses_id, checksum256 rand) {
     const auto bet_number = rolls.get(ses_id).number;
     if (bet_number <= actual_number) { // Win
         payout = get_win_payout(ses_id, bet_number);
-    } 
+    }
 
-    finish_game(payout, std::vector<game_sdk::param_t> {actual_number}); 
+    // Initiate game finalization and fund transfering to player and casino
+    finish_game(payout, std::vector<game_sdk::param_t> {actual_number});
 }
 
 void dice::on_finish(uint64_t ses_id) {
     const auto roll_itr = rolls.find(ses_id);
 
     if (roll_itr != rolls.end()) {
+        // Just clear data of finished session
         rolls.erase(roll_itr);
     }
 }
 
 } // namespace dice
 
+
+// Required macro call
+// That macro instantiate game contract entry point for given game class
 GAME_CONTRACT(dice::dice)
+
