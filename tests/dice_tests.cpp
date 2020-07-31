@@ -14,7 +14,7 @@ public:
     static constexpr uint32_t default_max_bet = 10;
     static constexpr uint32_t default_max_payout = 20;
 
-    static constexpr double all_range = 100; 
+    static constexpr double all_range = 100;
     static constexpr double house_edge = 0.01;
 
 public:
@@ -150,15 +150,15 @@ BOOST_FIXTURE_TEST_CASE(max_win_normal_test, dice_tester) try {
         const auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
         game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-        auto expected_max_win = deposit * ((all_range * (1. - house_edge)) / (all_range - bet_num) - 1.); 
+        auto expected_max_win = deposit * ((all_range * (1. - house_edge)) / (all_range - bet_num) - 1.);
         expected_max_win = expected_max_win < max_payout ? expected_max_win : max_payout;
 
         const auto session = get_game_session(game_name, ses_id);
         BOOST_CHECK(
-                session["last_max_win"].as<asset>() 
-                - asset(expected_max_win * core_symbol.precision(), core_symbol) < 
+                session["last_max_win"].as<asset>()
+                - asset(expected_max_win * core_symbol.precision(), core_symbol) <
                 precision
-        ); 
+        );
     }
 
 } FC_LOG_AND_RETHROW()
@@ -248,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE(new_session_bad_auth_test, dice_tester) try {
             N(newgame),
             { player_name, N(game) },
             { casino_name, N(active) },
-            mvo() 
+            mvo()
                 ("req_id", ses_id)
                 ("casino_id", casino_id)
     ).find("but does not have signatures for it") != std::string::npos);
@@ -259,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE(new_session_bad_auth_test, dice_tester) try {
             N(newgame),
             { casino_name, N(active) },
             { casino_name, N(active) },
-            mvo() 
+            mvo()
                 ("req_id", ses_id)
                 ("casino_id", casino_id)
         ), "missing authority of platform/gameaction");
@@ -306,7 +306,7 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_sender_test, dice_tester) try {
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(transfer(casino_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
-        wasm_assert_msg("state should be 'req_deposit'")
+        wasm_assert_msg("state should be 'req_deposit' or 'req_action'")
     );
 
 } FC_LOG_AND_RETHROW()
@@ -326,7 +326,7 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_state_test, dice_tester) try {
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
     BOOST_REQUIRE_EQUAL(transfer(player_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
-        wasm_assert_msg("state should be 'req_deposit'")
+        wasm_assert_msg("state should be 'req_deposit' or 'req_action'")
     );
 
     auto digest = get_game_session(game_name, ses_id)["digest"].as<sha256>();
@@ -337,7 +337,7 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_state_test, dice_tester) try {
     ), success());
 
     BOOST_REQUIRE_EQUAL(transfer(player_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
-        wasm_assert_msg("state should be 'req_deposit'")
+        wasm_assert_msg("state should be 'req_deposit' or 'req_action'")
     );
 } FC_LOG_AND_RETHROW()
 
