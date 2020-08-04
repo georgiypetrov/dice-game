@@ -11,8 +11,8 @@ void dice::check_params(uint64_t ses_id) const {
     eosio::check(max_bet != std::nullopt, "absent max bet param");
     eosio::check(max_payout != std::nullopt, "absent max payout param");
 
-    eosio::check(max_bet > min_bet, "Wrong bet border: max_bet less then min_bet");
-    eosio::check(max_payout > max_bet, "Max payout is less then max bet.");
+    eosio::check(max_bet > min_bet, "wrong bet border: max_bet less than min_bet");
+    eosio::check(max_payout > max_bet, "max payout is less than max bet");
 }
 
 void dice::check_bet(uint64_t ses_id) const {
