@@ -331,7 +331,7 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_state_test, dice_tester) try {
 
     auto digest = get_game_session(game_name, ses_id)["digest"].as<sha256>();
     auto sign_1 = rsa_sign(rsa_keys.at(platform_name), digest);
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { platform_name, N(signidice) }, mvo()
+    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { service_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("sign", sign_1)
     ), success());
@@ -368,7 +368,7 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_state_test, dice_tester) try {
 
     auto digest = get_game_session(game_name, ses_id)["digest"].as<sha256>();
     auto sign_1 = rsa_sign(rsa_keys.at(platform_name), digest);
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { platform_name, N(signidice) }, mvo()
+    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { service_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("sign", sign_1)
     ), success());
@@ -401,7 +401,7 @@ BOOST_FIXTURE_TEST_CASE(signidice_1_bad_state_test, dice_tester) try {
 
     auto digest = get_game_session(game_name, ses_id)["digest"].as<sha256>();
     auto sign_1 = rsa_sign(rsa_keys.at(platform_name), digest);
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { platform_name, N(signidice) }, mvo()
+    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { service_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("sign", sign_1)
     ), wasm_assert_msg("state should be 'req_signidice_part_1'"));
@@ -409,12 +409,12 @@ BOOST_FIXTURE_TEST_CASE(signidice_1_bad_state_test, dice_tester) try {
     const auto bet_num = 30;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { platform_name, N(signidice) }, mvo()
+    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { service_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("sign", sign_1)
     ), success());
 
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { platform_name, N(signidice) }, mvo()
+    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { service_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("sign", sign_1)
     ), wasm_assert_msg("state should be 'req_signidice_part_1'"));
@@ -434,7 +434,7 @@ BOOST_FIXTURE_TEST_CASE(signidice_2_bad_state_test, dice_tester) try {
 
     auto digest = get_game_session(game_name, ses_id)["digest"].as<sha256>();
     auto sign = rsa_sign(rsa_keys.at(platform_name), digest);
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicesecond), { casino_name, N(signidice) }, mvo()
+    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicesecond), { service_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("sign", sign)
     ), wasm_assert_msg("state should be 'req_signidice_part_2'"));
@@ -442,7 +442,7 @@ BOOST_FIXTURE_TEST_CASE(signidice_2_bad_state_test, dice_tester) try {
     const auto bet_num = 30;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num });
 
-    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicesecond), { casino_name, N(signidice) }, mvo()
+    BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicesecond), { service_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("sign", sign)
     ), wasm_assert_msg("state should be 'req_signidice_part_2'"));
