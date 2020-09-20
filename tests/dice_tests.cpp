@@ -184,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE(full_session_success_test, dice_tester) try {
     BOOST_REQUIRE_EQUAL(get_balance(game_name), STRSYM("5.0000"));
 
     const auto bet_num_small = 1;
-    const auto bet_num_big = 90;
+    const auto bet_num_big = 91;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num_small, bet_num_big });
 
     auto session = get_game_session(game_name, ses_id);
@@ -214,7 +214,7 @@ BOOST_FIXTURE_TEST_CASE(session_expiration_test, dice_tester) try {
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
     const auto bet_num_small = 1;
-    const auto bet_num_big = 10;
+    const auto bet_num_big = 11;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num_small, bet_num_big });
 
     BOOST_REQUIRE_EQUAL(get_balance(game_name), STRSYM("5.0000"));
@@ -287,13 +287,13 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_auth_test, dice_tester) try {
     BOOST_TEST_REQUIRE(push_action(game_name, N(gameaction), { player_name, N(game) }, { casino_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("type", 0)
-        ("params", std::vector<uint32_t> { 1, 30 })
+        ("params", std::vector<uint32_t> { 1, 31 })
     ).find("but does not have signatures for it") != std::string::npos);
 
     BOOST_REQUIRE_EQUAL(push_action(game_name, N(gameaction), { casino_name, N(active) }, { casino_name, N(active) }, mvo()
         ("req_id", ses_id)
         ("type", 0)
-        ("params", std::vector<uint32_t> { 1, 30 })
+        ("params", std::vector<uint32_t> { 1, 31 })
     ), "missing authority of platform/gameaction");
 
 } FC_LOG_AND_RETHROW()
@@ -309,7 +309,7 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_sender_test, dice_tester) try {
 
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
     const auto bet_num_small = 1;
-    const auto bet_num_big = 30;
+    const auto bet_num_big = 31;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num_small, bet_num_big });
 
     BOOST_REQUIRE_EQUAL(transfer(casino_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
@@ -330,7 +330,7 @@ BOOST_FIXTURE_TEST_CASE(deposit_bad_state_test, dice_tester) try {
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
 
     const auto bet_num_small = 1;
-    const auto bet_num_big = 30;
+    const auto bet_num_big = 31;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num_small, bet_num_big });
 
     BOOST_REQUIRE_EQUAL(transfer(player_name, game_name, STRSYM("5.0000"), std::to_string(ses_id)),
@@ -361,7 +361,7 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_state_test, dice_tester) try {
     auto ses_id = new_game_session(game_name, player_name, casino_id, STRSYM("5.0000"));
 
     const auto bet_num_small = 1;
-    const auto bet_num_big = 30;
+    const auto bet_num_big = 31;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num_small, bet_num_big });
 
     BOOST_REQUIRE_EQUAL(
@@ -372,7 +372,7 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_state_test, dice_tester) try {
             mvo()
                 ("req_id", ses_id)
                 ("type", 0)
-                ("params", std::vector<uint32_t> { 1, 30 })
+                ("params", std::vector<uint32_t> { 1, 31 })
         ), wasm_assert_msg("state should be 'req_deposit' or 'req_action'"));
 
     auto digest = get_game_session(game_name, ses_id)["digest"].as<sha256>();
@@ -391,7 +391,7 @@ BOOST_FIXTURE_TEST_CASE(game_action_bad_state_test, dice_tester) try {
             mvo()
                 ("req_id", ses_id)
                 ("type", 0)
-                ("params", std::vector<uint32_t> { 1, 30 })
+                ("params", std::vector<uint32_t> { 1, 31 })
         ), wasm_assert_msg("state should be 'req_deposit' or 'req_action'"));
     // clang-format on
 
@@ -416,7 +416,7 @@ BOOST_FIXTURE_TEST_CASE(signidice_1_bad_state_test, dice_tester) try {
     ), wasm_assert_msg("state should be 'req_signidice_part_1'"));
 
     const auto bet_num_small = 1;
-    const auto bet_num_big = 30;
+    const auto bet_num_big = 31;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num_small, bet_num_big });
 
     BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicefirst), { service_name, N(active) }, mvo()
@@ -450,7 +450,7 @@ BOOST_FIXTURE_TEST_CASE(signidice_2_bad_state_test, dice_tester) try {
     ), wasm_assert_msg("state should be 'req_signidice_part_2'"));
 
     const auto bet_num_small = 1;
-    const auto bet_num_big = 30;
+    const auto bet_num_big = 31;
     game_action(game_name, ses_id, MAKE_BET_ACTION, { bet_num_small, bet_num_big });
 
     BOOST_REQUIRE_EQUAL(push_action(game_name, N(sgdicesecond), { service_name, N(active) }, mvo()
