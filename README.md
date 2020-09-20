@@ -8,7 +8,7 @@ Master|[![master](https://travis-ci.org/georgiypetrov/dice-game.svg?branch=maste
 
 ## Description
 Modified dice (range dice) game for DAOPlatform based on DAOBet blockchain. 
-Implemeted by [sdk](https://github.com/DaoCasino/game-contract-sdk). 
+Implemented by [sdk](https://github.com/DaoCasino/game-contract-sdk). 
 
 ## Rules
 Player can choose two values, first(small) from 1 to 99, second(big) from 2 to 100. 
