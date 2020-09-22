@@ -15,8 +15,8 @@ namespace constant
 constexpr double all_range = 100.;  //< total range of possible dice numbers
 constexpr double house_edge = 0.01; //< casino's house edge
 
-constexpr uint16_t min_bet_param_type = 0;    //< type of game param that represent min bet amout
-constexpr uint16_t max_bet_param_type = 1;    //< type of game param that represent max bet amout
+constexpr uint16_t min_bet_param_type = 0;    //< type of game param that represent min bet amount
+constexpr uint16_t max_bet_param_type = 1;    //< type of game param that represent max bet amount
 constexpr uint16_t max_payout_param_type = 2; //< type of game param that represent max possible payout
 
 constexpr uint8_t roll_action_type = 0;       //< type of "roll" game action
@@ -38,11 +38,13 @@ public:
     // Attribute used for ABI generation
     // More details: https://developers.eos.io/manuals/eosio.cdt/v1.6/guides/generator-attributes/#abicode-generator-attributes
     struct [[eosio::table("roll")]] roll_row {
-        // Unique session ID, that ID provided by game SKD
+        // Unique session ID, that ID provided by game SDK
         uint64_t ses_id;
 
-        // Number that chosen by player before rolling dice
-        dice_number_t number;
+        // Small number that chosen by player before rolling dice which is range start
+        dice_number_t number_small;
+        // Big number that chosen by player before rolling dice which is range end (excluded)
+        dice_number_t number_big;
 
         // It's required method for table's row struct
         // That method result used as primary index of table
@@ -56,7 +58,7 @@ public:
     >;
 
 public:
-    // Required contructor, any game contract class should have ctor with that params
+    // Required constructor, any game contract class should have ctor with that params
     dice(name receiver, name code, eosio::datastream<const char*> ds):
         game(receiver, code, ds), ///< base class initialization
         rolls(_self, _self.value) ///< initilization of "rolls" table
@@ -90,7 +92,7 @@ private:
     */
 
     // Calculate and return payout amount for given session and player choise
-    asset get_win_payout(uint64_t ses_id, dice_number_t number) const;
+    asset get_win_payout(uint64_t ses_id, dice_number_t number_small, dice_number_t number_big) const;
 
     // Check game session initial params
     void check_params(uint64_t ses_id) const;
@@ -102,8 +104,8 @@ private:
     void check_action_params(const std::vector<game_sdk::param_t>& params) const;
 
 private:
-    // Calculate win coef for given player's choise
-    static double get_win_coefficient(dice_number_t num);
+    // Calculate win coef for given player's choice
+    static double get_win_coefficient(dice_number_t num_small, dice_number_t num_big);
 
 private:
     // roll table object
